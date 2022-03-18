@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "459772364462",
+    "project_id": "depixenlogin",
+    "storage_bucket": "depixenlogin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:459772364462:android:9d60a1d361af93d8e00f3f",
+        "android_client_info": {
+          "package_name": "com.example.depixen_loginui"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "459772364462-7qsj2rd0q8r4is0j68jleafge9g33bcb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNupIvIqQ8ya-RhlPMvwqjGkJ07PWlP3c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "459772364462-7qsj2rd0q8r4is0j68jleafge9g33bcb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
