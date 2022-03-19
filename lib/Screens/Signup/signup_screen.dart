@@ -1,13 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_auth/Screens/Signup/components/body.dart';
-import 'package:flutter_auth/Screens/Login/components/body.dart';
-import 'package:flutter_auth/Screens/Login/components/background.dart';
-import 'package:flutter_auth/Screens/Signup/signup_screen.dart';
-import 'package:flutter_auth/components/already_have_an_account_acheck.dart';
-import 'package:flutter_auth/components/rounded_button.dart';
-import 'package:flutter_auth/components/rounded_input_field.dart';
-import 'package:flutter_auth/components/rounded_password_field.dart';
+import 'package:flutter_auth/Screens/Home/home_screen.dart';
+import 'package:flutter_auth/model/user_model.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key key}) : super(key: key);
@@ -17,6 +14,8 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final _auth = FirebaseAuth.instance;
+
   //form key
   final _formKey = GlobalKey<FormState>();
 
@@ -25,6 +24,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final emailEditingController = new TextEditingController();
   final passwordEditingController = new TextEditingController();
   final confirmpasswordEditingController = new TextEditingController();
+  bool isHiddenPassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
           keyboardType: TextInputType.name,
-          //validator: () {},
+          validator: (value) {
+            if (value.isEmpty) {
+              return ("Name cannot be Empty");
+            }
+            return null;
+          },
           onSaved: (value) {
             NameEditingController.text = value;
           },
@@ -65,7 +70,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
           keyboardType: TextInputType.emailAddress,
-          //validator: () {},
+          validator: (value) {
+            if (value.isEmpty) {
+              return ("Please Enter Your Email");
+            }
+            // reg expression for email validation
+            if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+                .hasMatch(value)) {
+              return ("Please Enter a valid email");
+            }
+            return null;
+          },
           onSaved: (value) {
             NameEditingController.text = value;
           },
@@ -81,12 +96,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
           controller: passwordEditingController,
           decoration: InputDecoration(
             prefixIcon: Icon(Icons.vpn_key),
+            suffixIcon: InkWell(
+                child: Icon(
+                    isHiddenPassword ? Icons.visibility : Icons.visibility_off),
+                onTap: togglePasswordView),
             //contentPadding: EdgeInsets.fromLTRB(10, 15, 20, 10),
             hintText: "Password",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          obscureText: true,
-          //validator: () {},
+          obscureText: isHiddenPassword,
+          validator: (value) {
+            RegExp regex = new RegExp(r'^.{6,}$');
+            if (value.isEmpty) {
+              return ("Password is required for login");
+            }
+            if (!regex.hasMatch(value)) {
+              return ("Enter Valid Password(Min. 6 Character)");
+            }
+            return null;
+          },
           onSaved: (value) {
             NameEditingController.text = value;
           },
@@ -102,12 +130,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
           controller: confirmpasswordEditingController,
           decoration: InputDecoration(
             prefixIcon: Icon(Icons.vpn_key),
+            suffixIcon: InkWell(
+                child: Icon(
+                    isHiddenPassword ? Icons.visibility : Icons.visibility_off),
+                onTap: togglePasswordView),
             //contentPadding: EdgeInsets.fromLTRB(10, 15, 20, 10),
             hintText: "Confirm Password",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          obscureText: true,
-          //validator: () {},
+          obscureText: isHiddenPassword,
+          validator: (value) {
+            if (confirmpasswordEditingController.text !=
+                passwordEditingController.text) {
+              return "Password don't match";
+            }
+            return null;
+          },
           onSaved: (value) {
             NameEditingController.text = value;
           },
@@ -121,7 +159,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(29),
         child: MaterialButton(
-          onPressed: () {},
+          onPressed: () {
+            signUp(emailEditingController.text, passwordEditingController.text);
+          },
 
           padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
           //minWidth: MediaQuery.of(context).size.width / 2,
@@ -191,5 +231,50 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
+  }
+
+  void togglePasswordView() {
+    setState(() {
+      isHiddenPassword = !isHiddenPassword;
+    });
+  }
+
+  void signUp(String email, String password) async {
+    if (_formKey.currentState.validate()) {
+      await _auth
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .then((value) {
+        postDetailsToFirestore();
+      }).catchError((e) {
+        Fluttertoast.showToast(msg: e?.message);
+      });
+    }
+  }
+
+  postDetailsToFirestore() async {
+    //call firestore
+    //call user model
+    //send data to firebase
+
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    User user = _auth.currentUser;
+    UserModel userModel = UserModel();
+
+    //write all values
+
+    userModel.email = user?.email;
+    userModel.uid = user?.uid;
+    userModel.name = NameEditingController.text;
+
+    await firebaseFirestore
+        .collection("users")
+        .doc(user.uid)
+        .set(userModel.toMap());
+    Fluttertoast.showToast(msg: "Account created successfully");
+
+    Navigator.pushAndRemoveUntil(
+        this.context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+        (route) => false);
   }
 }

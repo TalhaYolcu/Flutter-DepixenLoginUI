@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_auth/Screens/Login/login_screen.dart';
+import 'package:flutter_auth/model/user_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key key}) : super(key: key);
@@ -8,6 +12,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  User user = FirebaseAuth.instance.currentUser;
+  UserModel loggedinuser = UserModel();
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user?.uid)
+        .get()
+        .then((value) {
+      this.loggedinuser = UserModel.fromMap(value.data());
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,9 +46,12 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(
                 height: 180,
                 child: Image.asset(
-                  "assets/images/smg.jpg",
+                  "assets/images/loki-blue-white.jpg",
                   fit: BoxFit.contain,
                 ),
+              ),
+              SizedBox(
+                height: 50,
               ),
               Text(
                 "Welcome Back",
@@ -38,23 +61,37 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 10,
               ),
               Text(
-                "Name",
+                "${loggedinuser.name}",
                 style: TextStyle(
                     color: Colors.black54, fontWeight: FontWeight.w500),
               ),
               Text(
-                "Email",
+                "${loggedinuser.email}",
                 style: TextStyle(
                     color: Colors.black54, fontWeight: FontWeight.w500),
               ),
               SizedBox(
                 height: 15,
               ),
-              ActionChip(label: Text("Log out"), onPressed: () {}),
+              ActionChip(
+                  label: Text(
+                    "Log out",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.blueAccent,
+                  onPressed: () {
+                    logout(context);
+                  }),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 }

@@ -1,13 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/Screens/Home/home_screen.dart';
-import 'package:flutter_auth/Screens/Login/components/body.dart';
-import 'package:flutter_auth/Screens/Login/components/background.dart';
 import 'package:flutter_auth/Screens/Signup/signup_screen.dart';
-import 'package:flutter_auth/components/already_have_an_account_acheck.dart';
-import 'package:flutter_auth/components/rounded_button.dart';
-import 'package:flutter_auth/components/rounded_input_field.dart';
-import 'package:flutter_auth/components/rounded_password_field.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key key}) : super(key: key);
@@ -24,6 +20,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
+  //firebase
+  final _auth = FirebaseAuth.instance;
+
+  bool isHiddenPassword = true;
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -36,12 +37,21 @@ class _LoginScreenState extends State<LoginScreen> {
           controller: emailController,
           decoration: InputDecoration(
             prefixIcon: Icon(Icons.mail),
-            //contentPadding: EdgeInsets.fromLTRB(10, 15, 20, 10),
             hintText: "Email",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
           keyboardType: TextInputType.emailAddress,
-          //validator: () {},
+          validator: (value) {
+            if (value.isEmpty) {
+              return ("Please Enter Your Email");
+            }
+            // reg expression for email validation
+            if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+                .hasMatch(value)) {
+              return ("Please Enter a valid email");
+            }
+            return null;
+          },
           onSaved: (value) {
             emailController.text = value;
           },
@@ -53,16 +63,28 @@ class _LoginScreenState extends State<LoginScreen> {
         margin: EdgeInsets.symmetric(vertical: 10),
         width: size.width * 0.8,
         child: TextFormField(
-          obscureText: true,
+          obscureText: isHiddenPassword,
           autofocus: false,
           controller: passwordController,
           decoration: InputDecoration(
             prefixIcon: Icon(Icons.vpn_key),
-            //contentPadding: EdgeInsets.fromLTRB(10, 15, 20, 10),
+            suffixIcon: InkWell(
+                child: Icon(
+                    isHiddenPassword ? Icons.visibility : Icons.visibility_off),
+                onTap: togglePasswordView),
             hintText: "Password",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          //validator: () {},
+          validator: (value) {
+            RegExp regex = new RegExp(r'^.{6,}$');
+            if (value.isEmpty) {
+              return ("Password is required for login");
+            }
+            if (!regex.hasMatch(value)) {
+              return ("Enter Valid Password(Min. 6 Character)");
+            }
+            return null;
+          },
           onSaved: (value) {
             passwordController.text = value;
           },
@@ -76,8 +98,9 @@ class _LoginScreenState extends State<LoginScreen> {
         borderRadius: BorderRadius.circular(29),
         child: MaterialButton(
           onPressed: () {
-            Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => HomeScreen()));
+            signIn(emailController.text, passwordController.text);
+            //Navigator.pushReplacement(
+            //  context, MaterialPageRoute(builder: (context) => HomeScreen()));
           },
 
           padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
@@ -150,5 +173,27 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void togglePasswordView() {
+    setState(() {
+      isHiddenPassword = !isHiddenPassword;
+      //toggleIconVisibility();
+    });
+  }
+
+  void signIn(String email, String password) async {
+    if (_formKey.currentState.validate()) {
+      await _auth
+          .signInWithEmailAndPassword(email: email, password: password)
+          .then((uid) => {
+                Fluttertoast.showToast(msg: "Login Successful"),
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => HomeScreen()))
+              })
+          .catchError((e) {
+        Fluttertoast.showToast(msg: e?.message);
+      });
+    }
   }
 }
