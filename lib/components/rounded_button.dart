@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/constants.dart';
 
+//rounded buttın is used to design buttons of the welcome screen
 class RoundedButton extends StatelessWidget {
   final String text;
   final Function press;
@@ -25,9 +26,6 @@ class RoundedButton extends StatelessWidget {
       ),
     );
   }
-
-  //Used:ElevatedButton as FlatButton is deprecated.
-  //Here we have to apply customizations to Button by inheriting the styleFrom
 
   Widget newElevatedButton() {
     return ElevatedButton(

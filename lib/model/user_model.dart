@@ -1,7 +1,8 @@
+//this class represents a user with uid,email and name information
 class UserModel {
   String uid;
-  String email;
-  String name;
+  String email = "Mail is loading...";
+  String name = "Name is loading...";
 
   UserModel({this.uid, this.email, this.name});
 

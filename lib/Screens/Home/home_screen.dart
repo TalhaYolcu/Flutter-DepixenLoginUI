@@ -18,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    //get user information
     FirebaseFirestore.instance
         .collection("users")
         .doc(user?.uid)
@@ -73,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(
                 height: 15,
               ),
+              //log out button
               ActionChip(
                   label: Text(
                     "Log out",
@@ -89,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  //firebase log out
   Future<void> logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushReplacement(

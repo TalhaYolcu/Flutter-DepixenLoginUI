@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   //firebase
   final _auth = FirebaseAuth.instance;
 
+  //make password visible/invisible
   bool isHiddenPassword = true;
 
   @override
@@ -41,6 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
           keyboardType: TextInputType.emailAddress,
+          //email validity check
           validator: (value) {
             if (value.isEmpty) {
               return ("Please Enter Your Email");
@@ -75,6 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
             hintText: "Password",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
+          //password validity check
           validator: (value) {
             RegExp regex = new RegExp(r'^.{6,}$');
             if (value.isEmpty) {
@@ -90,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
           },
           textInputAction: TextInputAction.next,
         ));
-
+    //login button
     final loginButton = Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       width: size.width * 0.8,
@@ -175,6 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  //set state of password visibility
   void togglePasswordView() {
     setState(() {
       isHiddenPassword = !isHiddenPassword;
@@ -182,6 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  //firebase sign in
   void signIn(String email, String password) async {
     if (_formKey.currentState.validate()) {
       await _auth

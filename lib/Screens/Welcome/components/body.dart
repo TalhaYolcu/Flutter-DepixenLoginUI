@@ -9,8 +9,9 @@ import 'package:flutter_svg/svg.dart';
 class Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     // This size provide us total height and width of our screen
+    Size size = MediaQuery.of(context).size;
+
     return Background(
       child: SingleChildScrollView(
         child: Column(
@@ -22,10 +23,12 @@ class Body extends StatelessWidget {
             ),
             SizedBox(height: size.height * 0.05),
             SvgPicture.asset(
+              //welcome screen illustration image
               "assets/icons/chat.svg",
               height: size.height * 0.45,
             ),
             SizedBox(height: size.height * 0.05),
+            //login button
             RoundedButton(
               text: "LOGIN",
               press: () {
@@ -39,6 +42,7 @@ class Body extends StatelessWidget {
                 );
               },
             ),
+            //signup button
             RoundedButton(
               text: "SIGN UP",
               color: kPrimaryLightColor,

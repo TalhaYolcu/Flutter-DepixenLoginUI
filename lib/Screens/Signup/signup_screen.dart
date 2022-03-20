@@ -14,6 +14,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  //firebase auth
   final _auth = FirebaseAuth.instance;
 
   //form key
@@ -24,6 +25,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final emailEditingController = new TextEditingController();
   final passwordEditingController = new TextEditingController();
   final confirmpasswordEditingController = new TextEditingController();
+
+  //change password visibility
   bool isHiddenPassword = true;
 
   @override
@@ -39,7 +42,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           controller: NameEditingController,
           decoration: InputDecoration(
             prefixIcon: Icon(Icons.person),
-            //contentPadding: EdgeInsets.fromLTRB(10, 15, 20, 10),
             hintText: "Name Surname",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
@@ -65,7 +67,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           controller: emailEditingController,
           decoration: InputDecoration(
             prefixIcon: Icon(Icons.mail),
-            //contentPadding: EdgeInsets.fromLTRB(10, 15, 20, 10),
             hintText: "Email",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
@@ -100,7 +101,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Icon(
                     isHiddenPassword ? Icons.visibility : Icons.visibility_off),
                 onTap: togglePasswordView),
-            //contentPadding: EdgeInsets.fromLTRB(10, 15, 20, 10),
             hintText: "Password",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
@@ -134,7 +134,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Icon(
                     isHiddenPassword ? Icons.visibility : Icons.visibility_off),
                 onTap: togglePasswordView),
-            //contentPadding: EdgeInsets.fromLTRB(10, 15, 20, 10),
             hintText: "Confirm Password",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
@@ -162,9 +161,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           onPressed: () {
             signUp(emailEditingController.text, passwordEditingController.text);
           },
-
           padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-          //minWidth: MediaQuery.of(context).size.width / 2,
           color: Colors.blueAccent,
           child: Text(
             "Sign Up",
@@ -193,7 +190,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: SingleChildScrollView(
         child: Center(
           child: Container(
-            //margin: EdgeInsets.all(30),
             color: Colors.white,
             child: Padding(
               padding: const EdgeInsets.all(10),
@@ -233,12 +229,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
+  //set password visibility
   void togglePasswordView() {
     setState(() {
       isHiddenPassword = !isHiddenPassword;
     });
   }
 
+  //firebase signup
   void signUp(String email, String password) async {
     if (_formKey.currentState.validate()) {
       await _auth
@@ -251,6 +249,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
+  //this method writes information to database
   postDetailsToFirestore() async {
     //call firestore
     //call user model
